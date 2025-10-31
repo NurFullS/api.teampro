@@ -22,7 +22,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**").permitAll() // разрешаем регистрацию и логин
                 .requestMatchers("/**").permitAll()
-                .anyRequest().authenticated() // остальные эндпоинты требуют аутентификации
+                .anyRequest().permitAll() // остальные эндпоинты требуют аутентификации
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

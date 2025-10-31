@@ -39,10 +39,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request, HttpServletResponse response) {
         return authService.login(request.getEmail(), request.getPassword())
                 .map(user -> {
-                    // Генерируем токен
                     String token = jwtUtil.generateToken(user.getEmail());
 
-                    // Ставим cookie
                     Cookie cookie = new Cookie("jwt", token);
                     cookie.setHttpOnly(true);
                     cookie.setPath("/");

@@ -13,7 +13,7 @@ public class JwtUtil {
 
     // Генерируем ключ один раз
     private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION = 1000 * 60 * 60 * 24; // 1 день
+    private final long EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 1 день
 
     public String generateToken(String email) {
         return Jwts.builder()
