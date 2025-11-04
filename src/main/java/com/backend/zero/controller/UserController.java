@@ -38,4 +38,29 @@ public class UserController {
         return userService.getUserByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    @PutMapping("/update-status")
+    public User updateWorkerStatus(HttpServletRequest request, @RequestParam String status) {
+        String token = null;
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if (cookie.getName().equals("jwt")) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (token == null) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String email = jwtUtil.extractEmail(token);
+        User user = userService.getUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // ⚙️ Используем то же имя, что и на фронте
+        user.setUserStatus(status);
+        return userService.save(user);
+    }
 }

@@ -1,19 +1,17 @@
 package com.backend.zero.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @Table(name = "projects")
 public class Project {
 
@@ -23,13 +21,17 @@ public class Project {
 
     private String name;
     private String description;
-
-    private String status; // например "working", "progress", "stopped"
+    private String status;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
     @JsonBackReference
     private User owner;
 
-    // геттеры и сеттеры
+    @ManyToMany
+    @JoinTable(name = "project_developers", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "developer_id"))
+    private Set<User> developers = new HashSet<>();
+
+    @Column(unique = true)
+    private String accessCode;
 }
