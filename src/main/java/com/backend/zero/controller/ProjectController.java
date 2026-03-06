@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import jakarta.servlet.http.HttpServlet;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -102,7 +103,7 @@ public class ProjectController {
     private String generateProjectCode() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder code = new StringBuilder();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 15; i++) {
             int idx = (int) (Math.random() * chars.length());
             code.append(chars.charAt(idx));
         }
@@ -193,19 +194,20 @@ public class ProjectController {
 
     @PostMapping("/join")
     @Transactional
-    public ResponseEntity<String> joinProject(@RequestParam String projectName, @RequestParam String accessCode,
+    public ResponseEntity<String> joinProject(@RequestParam String accessCode,
             @CookieValue("jwt") String token) {
         String email = jwtUtil.extractEmail(token);
         User user = userRepository.findByEmail(email).orElse(null);
         if (user == null)
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Пользователь не найден");
 
-        Project project = projectRepository.findByNameAndAccessCode(projectName, accessCode).orElse(null);
+        Project project = projectRepository.findByAccessCode(accessCode).orElse(null);
         if (project == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Проект не найден или неверный код");
 
         project.getDevelopers().add(user);
         projectRepository.save(project);
+
 
         return ResponseEntity.ok("Вы успешно присоединились к проекту");
     }
@@ -260,7 +262,7 @@ public class ProjectController {
         return ResponseEntity.ok("Разработчик успешно удален");
     }
 
-    @PutMapping("/{id}/status")
+    @PutMapping("/{id}/update")
     public ResponseEntity<String> updateStatus(
             @CookieValue("jwt") String token,
             @PathVariable Long id,
@@ -282,6 +284,7 @@ public class ProjectController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Вы не владелец проекта");
 
         project.setStatus(dto.getStatus());
+        project.setName(dto.getName());
         projectRepository.save(project);
 
         return ResponseEntity.ok("Статус проекта обновлён");
